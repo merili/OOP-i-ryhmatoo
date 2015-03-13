@@ -1,1 +1,156 @@
 Merka siia võid oma koodi lisada! :P
+
+TestTõenäosus
+
+package rühmatöö;
+import java.util.Locale;
+import java.util.Scanner;
+public class testtõenäosus {
+
+	public static void main(String[] args) {
+		
+		String yl;
+		
+		Scanner input = new Scanner(System.in);
+	    System.out.println("Mis laadi ülesannet soovite lahendada?");
+	    yl = input.nextLine();
+	    
+	    if (yl.equals("Klassikaline tõenäosus")){
+	    	int n;
+	    	int m;
+			Scanner sc = new Scanner(System.in);
+		    System.out.println("Mitu soodsat võimalust on?");
+		    m = sc.nextInt();
+		    System.out.println("Kõikide võimaluste arv on kui palju?");
+		    n = sc.nextInt();
+		    klassikalineTõenäosus klassikaline = new klassikalineTõenäosus(m,n);
+	    	System.out.println(klassikaline.klassikalinetn());
+	    	sc.close();
+	    }
+	    
+	
+	    if (yl.equals("Bernoulli valem")) {
+	    	int k;
+	    	int n;
+	    	double p;
+			Scanner sc = new Scanner(System.in).useLocale(Locale.US);;
+		    System.out.println("Mitmel korral sündmus toimub?");
+		    k = sc.nextInt();
+		    System.out.println("Kõikide võimaluste arv on kui palju?");
+		    n = sc.nextInt();
+		    System.out.println("Kui suur on tõenäosus üksiku sündmuse korral?");
+		    p = sc.nextDouble();
+		    Bernoulli vastus = new Bernoulli(k,n,p);
+	    	System.out.println(vastus.bernoulli());
+	    	sc.close();
+	    	
+	    	
+	    }
+	    input.close();
+	}
+
+}
+
+
+Klassikaline tõenäosus
+
+package rühmatöö;
+
+public class klassikalineTõenäosus {
+	int m;
+	int n;
+	
+	public klassikalineTõenäosus(int m, int n) {
+		super();
+		this.m = m;
+		this.n = n;
+	}
+
+	public double getM() {
+		return m;
+	}
+
+	public void setM(int m) {
+		this.m = m;
+	}
+
+	public int getN() {
+		return n;
+	}
+
+	public void setN(int n) {
+		this.n = n;
+	}
+	
+	double klassikalinetn() {
+		return m/n;
+	}
+	
+}
+
+
+Bernoulli valem
+
+package rühmatöö;
+
+public class Bernoulli {
+	int k;
+	int n;
+	double p;
+	
+	
+	public int getK() {
+		return k;
+	}
+	public void setK(int k) {
+		this.k = k;
+	}
+	public int getN() {
+		return n;
+	}
+	public void setN(int n) {
+		this.n = n;
+	}
+	public double getP() {
+		return p;
+	}
+	public void setP(double p) {
+		this.p = p;
+	}
+	
+	public Bernoulli(int k, int n, double p) {
+		super();
+		this.k = k;
+		this.n = n;
+		this.p = p;
+	}
+	 
+     int nfakt() {
+        int nfaktoriaal = 1; // this  will be the result
+        for (int i = 1; i <= n; i++) {
+            nfaktoriaal *= i;
+        }
+        return nfaktoriaal;
+    }
+     int nkfakt() {
+        int nkfaktoriaal = 1; // this  will be the result
+        for (int i = 1; i <= (n-k); i++) {
+            nkfaktoriaal *= i;
+        }
+        return nkfaktoriaal;
+    }
+     int kfakt() {
+        int kfaktoriaal = 1; // this  will be the result
+        for (int i = 1; i <= k; i++) {
+            kfaktoriaal *= i;
+        }
+        return kfaktoriaal;
+    }
+	
+    double bernoulli() {
+    	return  ((nfakt()/(kfakt()*nkfakt()))*Math.pow(p, k)*Math.pow((1-p),(n-k)));
+    }
+}
+
+
+
