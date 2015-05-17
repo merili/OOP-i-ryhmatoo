@@ -1,122 +1,511 @@
-Merka siia võid oma koodi lisada! :P
+PEAKLASS
 
-TestTõenäosus
+import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.scene.Group;
+import javafx.scene.Scene;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundSize;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
-package rühmatöö;
-import java.util.Locale;
-import java.util.Scanner;
-public class testtõenäosus {
+import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
+
+
+class NulligaJagamiseErind extends ArithmeticException {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	NulligaJagamiseErind(String s){
+		super(s);
+	}
+
+}
+
+class NimetajaVäiksemKuiLugeja extends Exception{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	NimetajaVäiksemKuiLugeja(String s){
+		super(s);
+	}
+}
+
+class TõenäosuseErind extends Exception{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	TõenäosuseErind(String s){
+		super(s);
+	}
+}
+
+class TäisarvuErind extends Exception{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	TäisarvuErind(String s){
+		super(s);
+	}
+}
+
+public class Toenaousus extends Application {
+
+
+	int onint(String arv) { //kontrollib, kas sisestatud arv on täisarvutüüpi
+		boolean tõeväärtus = true;
+		try{
+			Integer.parseInt(arv);
+		}catch(NumberFormatException e){
+			tõeväärtus = false;
+		}
+		if (tõeväärtus == false){
+			return -1;
+		}
+		return Integer.parseInt(arv);
+	}
+
+	double ondouble(String arv){ //kontrollib kas sisestatud arv on double tüüpi
+		boolean tõeväärtus = true;
+		try{
+			Double.parseDouble(arv);
+		}catch(NumberFormatException e){
+			tõeväärtus = false;
+		}
+		if (tõeväärtus == false){
+			return -1;
+		}
+		return Double.parseDouble(arv);
+	}
+
 
 	public static void main(String[] args) {
-		
-		String yl;
-		
-		Scanner input = new Scanner(System.in);
-	    System.out.println("Mis laadi ülesannet soovite lahendada?");
-	    yl = input.nextLine();
-	    
-	    if (yl.equals("Klassikaline tõenäosus")){
-	    	int n;
-	    	int m;
-			Scanner sc = new Scanner(System.in);
-		    System.out.println("Mitu soodsat võimalust on?");
-		    m = sc.nextInt();
-		    System.out.println("Kõikide võimaluste arv on kui palju?");
-		    n = sc.nextInt();
-		    klassikalineTõenäosus klassikaline = new klassikalineTõenäosus(m,n);
-	    	System.out.println(klassikaline.klassikalinetn());
-	    	sc.close();
-	    }
-	    
-	
-	    if (yl.equals("Bernoulli valem")) {
-	    	int k;
-	    	int n;
-	    	double p;
-			Scanner sc = new Scanner(System.in).useLocale(Locale.US);;
-		    System.out.println("Mitmel korral sündmus toimub?");
-		    k = sc.nextInt();
-		    System.out.println("Kõikide võimaluste arv on kui palju?");
-		    n = sc.nextInt();
-		    System.out.println("Kui suur on tõenäosus üksiku sündmuse korral?");
-		    p = sc.nextDouble();
-		    Bernoulli vastus = new Bernoulli(k,n,p);
-	    	System.out.println(vastus.bernoulli());
-	    	sc.close();
-	    	
-	    	
-	    }
-	    input.close();
+		launch(args);
 	}
+
+	final Button nupp = new Button("Vali");
+	final TextField soodsad = new TextField("");
+	final TextField koik = new TextField("");
+	final TextField toenaosus1 = new TextField("");
+	final TextField toenaosus2 = new TextField("");
+	final TextField toenaosus3 = new TextField("");
+
+	@Override
+	public void start(Stage peaLava) throws Exception {
+		//vastused, mis kuvatakse (peavad olema String tyypi) 
+		DecimalFormat ymarda = new DecimalFormat("#.####"); //ümardab 4 komakohani
+
+
+		final Text vastus = new Text("");
+		final Text eelmine_vastus = new Text("");
+
+
+
+
+		peaLava.setTitle("Tõenäosusteooria ja -statistika");
+		Group juur = new Group();
+		Scene stseen = new Scene(juur, 600, 300);
+		final ComboBox<String> kastike = new ComboBox<String>();
+		kastike.getItems().addAll(						//listida kĆµik erinevad arvutusvĆµimalused
+				"Klassikaline tõenäosus", 
+				"Dispersioon, keskväärtus, standardhälve", 
+				"Bernoulli valem",
+				"Bayesi valem",
+				"Poissoni jaotus"
+				);
+
+		GridPane grid = new GridPane();
+		grid.setVgap(10);
+		grid.setHgap(5);
+		grid.add(new Label("Ülesanne: "), 1, 1);
+		grid.add(kastike, 2, 1);
+
+		grid.add(new Label("Soodsad võimalused: "), 1, 2);
+		grid.add(soodsad, 2, 2);
+		grid.add(new Label("Kõik võimalused: "), 3, 2);
+		grid.add(koik, 4,2);
+		grid.add(new Label("Tõenäosus (1): "), 1, 3);
+		grid.add(toenaosus1, 2,3);
+		grid.add(new Label("Tõenäosus (2): "), 3,3);
+		grid.add(toenaosus2,4,3);
+		grid.add(new Label("Tõenäosus (3): "), 1,4);
+		grid.add(toenaosus3,2,4);
+		grid.add(nupp, 3, 1);
+		grid.add(new Label("VASTUS"), 1,7);
+		grid.add(new Label("EELMINE VASTUS"),3,7);
+
+
+
+		nupp.setOnMouseClicked(events -> {
+			if(kastike.getValue() == "Klassikaline tõenäosus"){ // kui vĆµrdub selle valikuga, siis saab midagi teha..
+				String arvuke = "";
+				try {
+					String m = soodsad.getText(); //kĆµik sisestused on string formaadis
+					String n = koik.getText();
+					int k = onint(m);
+					int l = onint(n);
+					if (l == 0) {
+						throw new NulligaJagamiseErind("Kõikide võimaluste arv peab olema 0-st erinev!");
+					}
+					else if (k == -1 || l == -1) {
+						throw new TäisarvuErind("Nii soodsate kui ka kõikide võimaluste arv peab olema täisarv!");
+					}
+					else if (k > l) {
+						throw new NimetajaVäiksemKuiLugeja("Soodsate võimaluste arv peab olema kõikide võimaluste arvust väiksem või võrdne!");
+					}
+
+					KlassikalineTõenäosus tn = new KlassikalineTõenäosus(k,l);
+					double arv = tn.klassikalinetn();
+					System.out.println(arv);
+					arvuke = String.valueOf(ymarda.format(arv));
+
+
+					String arvutus = "Tõenäosus on " + arvuke;
+					vastus.setText((arvutus));
+					try {
+						FileReader fileReader = new FileReader("eelmisedvastused.txt");
+						BufferedReader bufferedReader =  new BufferedReader(fileReader);
+
+						String line;
+						while((line = bufferedReader.readLine()) != null) {
+							eelmine_vastus.setText(line); //kirjutab failist rea, mis on viimasena salvestatud
+						}    
+						bufferedReader.close();            
+					}
+					catch(FileNotFoundException ex) {
+						System.out.println("Faili ei leita");                
+					}
+					catch(IOException ex) {
+						System.out.println("Probleeme faili lugemisega");                  
+					}
+					try {			            
+						DataOutputStream out = new DataOutputStream(new FileOutputStream("eelmisedvastused.txt"));
+						out.writeBytes("Klassikaline tõenäosus oli " + arvuke); //kirjutab faili vastuse
+						out.close();    
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				catch (NulligaJagamiseErind nje) {
+					JOptionPane.showMessageDialog(null, nje.getMessage()); //need on message kastid, mis ilmuvad kui tekib erind
+				}
+				catch (TäisarvuErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+				catch (NimetajaVäiksemKuiLugeja nv) {
+					JOptionPane.showMessageDialog(null, nv.getMessage());
+				}
+
+			}
+			else if(kastike.getValue() == "Dispersioon, keskväärtus, standardhälve"){
+				System.out.println("appi");
+			}
+			else if(kastike.getValue() == "Bernoulli valem"){
+				try {
+					String m = soodsad.getText(); //kĆµik sisestused on string formaadis
+					String n = koik.getText();
+					String t = toenaosus1.getText();
+					int k = onint(m);
+					int l = onint(n);
+					double u = ondouble(t);
+					if (l == 0) {
+						throw new NulligaJagamiseErind("Nulliga ei tohi jagada!");
+					}
+					else if (k == -1 || l == -1) {
+						throw new TäisarvuErind("Nii soodsate kui ka kõikide võimaluste arv peab olema täisarv!");
+					}
+					else if (k > l) {
+						throw new NimetajaVäiksemKuiLugeja("Soodsate võimaluste arv peab olema kõikide võimaluste arvust väiksem või võrdne!");
+					}
+					else if (u < 0 || u > 1) {
+						System.out.println("Viga");
+						throw new TõenäosuseErind("Tõenäosus peab jääma alati lõiku [0;1]");
+					}
+
+					Bernoulli bernoullike = new Bernoulli(k,l,u);
+					double vast = bernoullike.bernoull();
+					System.out.println(vast);
+					String arvuke = String.valueOf(ymarda.format(vast));
+					String arvutus = "Tõenäosus on " + arvuke;
+					vastus.setText(arvutus);
+					try {
+						FileReader fileReader = new FileReader("eelmisedvastused.txt");
+						BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+						String line;
+						while((line = bufferedReader.readLine()) != null) {
+							eelmine_vastus.setText(line);
+						}    
+						bufferedReader.close();            
+					}
+					catch(FileNotFoundException ex) {
+						System.out.println("Faili ei leita");                
+					}
+					catch(IOException ex) {
+						System.out.println("Probleeme faili lugemisega");                   
+					}
+					try {			            
+						DataOutputStream out = new DataOutputStream(new FileOutputStream("eelmisedvastused.txt"));
+						out.writeBytes("Bernoulli tõenäosus oli " + arvuke);
+						out.close();    
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				catch (NulligaJagamiseErind nje) {
+					JOptionPane.showMessageDialog(null, nje.getMessage());
+				}
+				catch (TäisarvuErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+				catch (NimetajaVäiksemKuiLugeja nv) {
+					JOptionPane.showMessageDialog(null, nv.getMessage());
+				}
+				catch (TõenäosuseErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+
+			}
+			else if(kastike.getValue() == "Bayesi valem") {
+				try {
+					String m = toenaosus1.getText(); //kĆµik sisestused on string formaadis
+					String n = toenaosus2.getText();
+					String t = toenaosus3.getText();
+					double k = ondouble(m);
+					double l = ondouble(n);
+					double u = ondouble(t);
+					if (k == 0) {
+						throw new NulligaJagamiseErind("Nulliga ei tohi jagada!");
+					}
+					else if (k < 0 || k > 1 || l < 0 || l > 1 || u < 0 || u > 1) {
+						throw new TõenäosuseErind("Tõenäosus peab jääma alati lõiku [0;1]");
+					}
+					BayesiValem bayes = new BayesiValem(k, l, u);
+					double vast = bayes.Bayes();
+					System.out.println(vast);
+					String arvuke = String.valueOf(ymarda.format(vast));
+					String arvutus = "Tõenäosus on " + arvuke;
+					vastus.setText(arvutus);
+					try {
+						FileReader fileReader = new FileReader("eelmisedvastused.txt");
+						BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+						String line;
+						while((line = bufferedReader.readLine()) != null) {
+							eelmine_vastus.setText(line);
+						}    
+						bufferedReader.close();            
+					}
+					catch(FileNotFoundException ex) {
+						System.out.println("Faili ei leita");                
+					}
+					catch(IOException ex) {
+						System.out.println("Probleeme faili lugemisega");                   
+					}
+					try {			            
+						DataOutputStream out = new DataOutputStream(new FileOutputStream("eelmisedvastused.txt"));
+						out.writeBytes("Bayesi tõenäosus oli " + arvuke);
+						out.close();    
+
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				catch (NulligaJagamiseErind nje) {
+					JOptionPane.showMessageDialog(null, nje.getMessage());
+				}
+				catch (TõenäosuseErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+			}
+			else {
+				try {
+					String m = soodsad.getText(); //kĆµik sisestused on string formaadis
+					String n = koik.getText();
+					String t = toenaosus1.getText();
+					int k = onint(m);
+					int l = onint(n);
+					double u = ondouble(t);
+					if (l == 0) {
+						throw new NulligaJagamiseErind("Nulliga ei tohi jagada!");
+					}
+					else if (k == -1 || l == -1) {
+						throw new TäisarvuErind("Nii soodsate kui ka kõikide võimaluste arv peab olema täisarv!");
+					}
+					else if (k > l) {
+						throw new NimetajaVäiksemKuiLugeja("Soodsate võimaluste arv peab olema kõikide võimaluste arvust väiksem või võrdne!");
+					}
+					else if (u < 0 || u > 1) {
+						System.out.println("Viga");
+						throw new TõenäosuseErind("Tõenäosus peab jääma alati lõiku [0;1]");
+					}
+
+					PoissoniJaotus poisson = new PoissoniJaotus(k, l, u);
+					double arv = poisson.tõenäosus();
+					System.out.println(arv);
+					String arvuke = String.valueOf(ymarda.format(arv));
+					String arvutus = "Tõenäosus on " + arvuke;
+					vastus.setText(arvutus);
+					try {
+						FileReader fileReader = new FileReader("eelmisedvastused.txt");
+						BufferedReader bufferedReader = new BufferedReader(fileReader);
+
+						String line;
+						while((line = bufferedReader.readLine()) != null) {
+							eelmine_vastus.setText(line);
+						}    
+						bufferedReader.close();            
+					}
+					catch(FileNotFoundException ex) {
+						System.out.println("Faili ei leita");                
+					}
+					catch(IOException ex) {
+						System.out.println("Probleeme faili lugemisega");                   
+					}
+					try {			            
+						DataOutputStream out = new DataOutputStream(new FileOutputStream("eelmisedvastused.txt"));
+						out.writeBytes("Poissoni tõenäosus oli " + arvuke);
+						out.close();    
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+				catch (NulligaJagamiseErind nje) {
+					JOptionPane.showMessageDialog(null, nje.getMessage());
+				}
+				catch (TäisarvuErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+				catch (NimetajaVäiksemKuiLugeja nv) {
+					JOptionPane.showMessageDialog(null, nv.getMessage());
+				}
+				catch (TõenäosuseErind te) {
+					JOptionPane.showMessageDialog(null, te.getMessage());
+				}
+
+			}
+		});
+
+		grid.add(vastus, 1,9);
+		grid.add(eelmine_vastus, 3,9);
+
+
+		Group juureke = (Group)stseen.getRoot();
+
+		ImageView imageView = new ImageView();
+
+
+		imageView.setOnMouseClicked((MouseEvent event) -> {
+			imageView.setImage(null);
+		});
+
+		Button btn = new Button();
+		btn.setText("???"); //sellele nupule vajutades ilmub pilt
+		double a = stseen.getWidth()-30;
+		double b = stseen.getHeight()-30;
+		btn.setLayoutX(a);
+		btn.setLayoutY(b);
+		btn.setOnAction((ActionEvent event) -> {
+			imageView.setImage(new Image("http://oi58.tinypic.com/2jb1u36.jpg")); 
+		});
+
+
+		juureke.getChildren().addAll(grid,btn,imageView);
+		peaLava.setScene(stseen);
+		peaLava.show();
+
+
+	}
+
 
 }
 
 
-Klassikaline tõenäosus
 
-package rühmatöö;
 
-public class klassikalineTõenäosus {
-	int m;
-	int n;
-	
-	public klassikalineTõenäosus(int m, int n) {
+
+
+
+
+KLASSIKALINE TÕENÄOSUS
+
+
+public class KlassikalineTõenäosus {
+	int k; //soodsad võimalused
+	int n; //kõik võimalused
+	public KlassikalineTõenäosus(int k, int n) {
 		super();
-		this.m = m;
+		this.k = k;
 		this.n = n;
 	}
-
-	public double getM() {
-		return m;
-	}
-
-	public void setM(int m) {
-		this.m = m;
-	}
-
-	public int getN() {
-		return n;
-	}
-
-	public void setN(int n) {
-		this.n = n;
-	}
-	
 	double klassikalinetn() {
-		return m/n;
+		if(k <= n && k >= 0 && n > 0){
+			double tn = (double) k/n;
+			return tn;
+		}
+		else{
+			return -1;
+		}
 	}
-	
 }
 
 
-Bernoulli valem
 
-package rühmatöö;
+BERNOULLI
+
 
 public class Bernoulli {
-	int k;
-	int n;
-	double p;
-	
-	
-	public int getK() {
-		return k;
-	}
-	public void setK(int k) {
-		this.k = k;
-	}
-	public int getN() {
-		return n;
-	}
-	public void setN(int n) {
-		this.n = n;
-	}
-	public double getP() {
-		return p;
-	}
-	public void setP(double p) {
-		this.p = p;
-	}
+
+	int k; //soodsad võimalused
+	int n; //kõik võimalused
+	double p; //üksiku sündmuse tõenäosus
 	
 	public Bernoulli(int k, int n, double p) {
 		super();
@@ -124,33 +513,219 @@ public class Bernoulli {
 		this.n = n;
 		this.p = p;
 	}
-	 
-     int nfakt() {
-        int nfaktoriaal = 1; // this  will be the result
-        for (int i = 1; i <= n; i++) {
-            nfaktoriaal *= i;
-        }
-        return nfaktoriaal;
-    }
-     int nkfakt() {
-        int nkfaktoriaal = 1; // this  will be the result
-        for (int i = 1; i <= (n-k); i++) {
-            nkfaktoriaal *= i;
-        }
-        return nkfaktoriaal;
-    }
-     int kfakt() {
-        int kfaktoriaal = 1; // this  will be the result
-        for (int i = 1; i <= k; i++) {
-            kfaktoriaal *= i;
-        }
-        return kfaktoriaal;
-    }
 	
-    double bernoulli() {
-    	return  ((nfakt()/(kfakt()*nkfakt()))*Math.pow(p, k)*Math.pow((1-p),(n-k)));
-    }
+	int fakt(int arv) { //faktoriaali arvutamine
+		int faktoriaal = 1;
+		for (int i = 1; i <= arv; i++) {
+			faktoriaal *= i;
+		}
+		return faktoriaal;
+	}
+	
+	
+
+	double bernoull() {
+		if ( k <= n && n > 0 && k >= 0 ){
+			return ((fakt(n)/(fakt(k)*fakt(n-k)))*Math.pow(p, k)*Math.pow((1-p),(n-k)));
+		}
+		else{
+			return -1;
+		}
+	}
+
 }
 
 
 
+BAYESI VALEM
+
+
+public class BayesiValem {
+	double p1;
+	double p2;
+	double p3;
+	public BayesiValem(double p1, double p2, double p3) {
+		super();
+		this.p1 = p1; // A tõenäosus
+		this.p2 = p2; // B tõenäosus
+		this.p3 = p3; // A|B tõenäosus (A tingimusel B)
+	}
+	double Bayes(){
+		return p3*p2/p1;
+	}
+	
+}
+
+
+POISSONI JAOTUS
+
+public class PoissoniJaotus {
+	int k; //sündmuste loendaja
+	int n; // kõikide võimaluste arv
+	double p; //üksiksündmuse tõenäosus
+	int fakt(int arv) { //faktoriaali arvutamine
+		int faktoriaal = 1;
+		for (int i = 1; i <= arv; i++) {
+			faktoriaal *= i;
+		}
+		return faktoriaal;
+	}
+	
+	public PoissoniJaotus(int k, int n, double p) {
+		super();
+		this.k = k;
+		this.n = n;
+		this.p = p;
+	}
+	double valem(int k) {
+		double l = n*p; //lambda
+		return Math.pow(l, k)/fakt(k)*Math.pow(Math.E, -l);
+	}
+	double summa() { //liidab kokku vastandsündmused
+		double summa = 0.0;
+		for (int i = 0; i<=k;i++){
+			summa += valem(i);
+		}
+		return summa;
+	}
+	double tõenäosus() {
+		if ( k >= 0 && p >= 0 && p <= 1 && n > 0) {
+			return 1-summa();
+		}
+		else {
+			return -1;
+		}
+	}
+	
+}
+
+
+DISP KESK HÄLVE
+
+import java.util.ArrayList;
+
+
+public class DispKeskHälve{
+	ArrayList <String> x; // jaotuste list
+	ArrayList <String> p; // tõenäosuste list
+	public DispKeskHälve(ArrayList<String> x, ArrayList<String> p) {
+		super();
+		this.x = x;
+		this.p = p;
+	}
+	double keskväärtus(){
+		double summa = 0;
+		for(int i = 0; i < x.size(); i++)
+			summa = summa + Double.parseDouble(x.get(i))*Double.parseDouble(p.get(i));
+		return summa;
+	}
+	double dispersioon(){
+		double summa = 0;
+		for(int i = 0; i < x.size(); i++)
+			summa = summa + Math.pow(Double.parseDouble(x.get(i)), 2)*Double.parseDouble(p.get(i));
+		double dispersioon = summa - Math.pow(keskväärtus(),2);
+		return dispersioon;
+	}
+	double standardhälve(){
+		return Math.sqrt(dispersioon());
+	}
+}
+
+
+PILDI LUGEMINE LIHTSALT ARVUTIST CANVASEGA, ILMA URLITA
+
+
+import java.awt.Canvas;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.HeadlessException;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import javax.imageio.ImageIO;
+import javax.swing.JFrame;
+ 
+public class DisplayImage extends JFrame {
+		
+        /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+		private final BufferedImage image;
+      
+        
+		public DisplayImage(BufferedImage image) throws HeadlessException {
+			super();
+			this.image = image;
+		}
+
+		public static void main(String[] args) throws Exception {
+        	new DisplayImage();
+    	}
+    
+        public DisplayImage() throws Exception {
+                setTitle("Display Image");
+                setSize(new Dimension(20, 400));
+                setLocationRelativeTo(null);
+                setDefaultCloseOperation(3);
+                JFrame.getFrames();
+                
+                MyCanvas canvas = new MyCanvas();
+ 
+                add(canvas);
+ 
+                image = ImageIO.read(new FileInputStream("kysi.jpg")); 
+
+         	   	
+                setVisible(true);
+        }
+ 
+        class MyCanvas extends Canvas {
+ 
+                /**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
+				@Override
+                public void paint(Graphics g) {
+                        super.paint(g);
+                        
+                        g.drawImage(image, 0, 0, this);
+                     
+                       
+                }
+        }
+}
+
+
+PILDI LUGEMINE URLIGA
+
+
+import javafx.application.Application;
+    import javafx.scene.Scene;
+    import javafx.scene.image.Image;
+    import javafx.scene.image.ImageView;
+    import javafx.scene.layout.StackPane;
+    import javafx.stage.Stage;
+
+    public class LoadImage extends Application {
+
+    public static void main(String[] args) {
+    Application.launch(args);
+    }
+    @Override
+    public void start(Stage primaryStage) {
+    primaryStage.setTitle("Load Image");
+
+    StackPane sp = new StackPane();
+    Image img = new Image("http://i57.tinypic.com/jt9fu8_th.jpg");
+    ImageView imgView = new ImageView(img);
+    sp.getChildren().add(imgView);
+
+    //Adding HBox to the scene
+    Scene scene = new Scene(sp);
+    primaryStage.setScene(scene);
+    primaryStage.show();
+    }
+
+  }
